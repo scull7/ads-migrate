@@ -1,0 +1,25 @@
+{
+  "name": "das-migrate",
+  "version": "0.0.1",
+  "description": "A data and schema migration tool that uses simple file-name diffing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scull7/das-migrate.git"
+  },
+  "keywords": [
+    "migration",
+    "database",
+    "migrate",
+    "schema"
+  ],
+  "author": "Nathan A Sculli <scull7@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scull7/das-migrate/issues"
+  },
+  "homepage": "https://github.com/scull7/das-migrate#readme"
+}
