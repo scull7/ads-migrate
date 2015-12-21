@@ -1,30 +1,18 @@
 Bluebird            = require 'bluebird'
-MigrationFile       = require './migration-file'
-MigrationFileName   = require './migration-file-name'
+Migration           = require './migration'
+MigrationName       = require './migration-name'
 
 
-# isBefore :: MigrationFile -> MigrationFile -> Bool
-isBefore = (migrationA, migrationB) ->
-  if migrationA.timestamp < migrationB.timestamp then true else false
+# fromNameList :: Array String -> Array Migration
+fromNameList  = (nameList) ->
+  nameList
+    .filter(isMigrationFile)
+    .map(MigrationFileName.parse)
 
 
-# isSame :: MigrationFile -> MigrationFile -> Bool
-isSame  = (migrationA, migrationB) ->
-
-  sameName  = migrationA.name is migrationB.name
-  sameTime  = migrationA.timestamp is migrationB.timestamp
-
-  return if sameName and sameTime then true else false
-
-
-
-# nameListToObjectList :: Array String -> Array MigrationFile
-nameListToObjectList  = (nameList) ->
-  nameList.filter(isMigrationFile).map(MigrationFileName.parse)
-
-
-# getListFromPath :: String -> Promise Array MigrationFile
-getListFromPath = (path) -> new Bluebird (resolve, reject) ->
+# getFromPath :: String -> Promise Array MigrationFile
+# @TODO - move into file that handles side effects.
+getFromPath = (path) -> new Bluebird (resolve, reject) ->
 
   fs.readdir path, (err, list) ->
 
@@ -35,23 +23,24 @@ getListFromPath = (path) -> new Bluebird (resolve, reject) ->
       resolve nameListToObjectList list
 
 
+# concatToHash :: MigrationHash = { String : Migration }
+concatToHash  = (acc, x) ->
+  acc[( MigrationName.fromObject x )] = x
+  return acc
+
+
 # toHash :: Array MigrationFile -> {
 #   String : MigrationFile
 # }
-toHash  = (list) ->
-  reducer = (acc, x) ->
-    acc[(MigrationFileName.fromObject x)] = x
-    return acc
-
-  return list.reduce(reducer, {})
+toHash  = (list) -> list.reduce concatToHash, {}
 
 
 # getListDiff ::
-#   Array MigrationFile -> Array MigrationFile -> {
-#   add: Array MigrationFile
-#   del: Array MigrationFile
+#   Array Migration -> Array Migration -> {
+#   add: Array Migration
+#   del: Array Migration
 # }
-getListDiff   = (listA, listB) ->
+getDiff   = (listA, listB) ->
   
   left  = toHash listA
   right = toHash listB
@@ -63,10 +52,8 @@ getListDiff   = (listA, listB) ->
 
 
 module.exports  =
-  MigrationFile         : MigrationFile
-  getListDiff           : getListDiff
-  getListFromPath       : getListFromPath
-  nameListToObjectList  : nameListToObjectList
-  isMigrationFileName   : isMigrationFile
-  fileNameToFileObject  : fileNameToFileObject
-
+  Migration     : Migration
+  getDiff       : getDiff
+  fromNameList  : fromNameList
+  # @TODO - move into file that handles side effects.
+  getFromPath   : getFromPath
