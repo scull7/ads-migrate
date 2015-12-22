@@ -6,8 +6,8 @@ MigrationName       = require './migration-name'
 # fromNameList :: Array String -> Array Migration
 fromNameList  = (nameList) ->
   nameList
-    .filter(isMigrationFile)
-    .map(MigrationFileName.parse)
+    .filter(MigrationName.isValid)
+    .map(MigrationName.parse)
 
 
 # getFromPath :: String -> Promise Array MigrationFile
